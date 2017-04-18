@@ -27,9 +27,19 @@
       line-height: 16px;
     }
 
-    #in{
+    #fileedit{
       position: fixed;
       top: 0;
+      left: 0;
+      width: 100%;
+      height: 12px;
+      overflow: auto;
+      font-size: 12px;
+    }
+    
+    #in{
+      position: fixed;
+      top: 5%;
       left: 0;
       bottom: 0;
       width: 50%;
@@ -41,7 +51,7 @@
 
     .CodeMirror {
       position: absolute;
-      top: 0;
+      top: 5%;
       left: 0;
       right: 0;
       bottom: 0;
@@ -56,7 +66,7 @@
 
     #out{
       position: fixed;
-      top: 0;
+      top: 5%;
       right: 0;
       left: 50%;
       bottom: 0;
@@ -203,6 +213,7 @@
   </style>
 </head>
 <body>
+  <div id="urledit"><form><input type="file" id="fileinput"/></form></div>
   <div id="in"><form><textarea id="code"># (GitHub-Flavored) Markdown Editor
 
 Basic useful feature list:
@@ -337,9 +348,20 @@ the inspiration to this, and some handy implementation hints, came.
 
     editor.on('change', update);
 
+    function updateUrl(e){
+      alert('url:' + e.getValue());                                                                        
+    }
 
+    document.getElementById('fileinput')
+        .addEventListener('change', function(e) {
+          document.getElementById('in').focus();
+          var reader = new FileReader();
+          var fileInput = document.getElementById('fileinput');
+          reader.onload = function(e) { editor.setValue(e.target.result); };
 
-
+          reader.readAsText(fileInput.files[0]);
+          return false;
+        });
 
     document.addEventListener('drop', function(e){
       e.preventDefault();
@@ -353,12 +375,14 @@ the inspiration to this, and some handy implementation hints, came.
       reader.readAsText(e.dataTransfer.files[0]);
     }, false);
 
-
-
-
-
-    function saveAsMarkdown(){
-      save(editor.getValue(), "untitled.md");
+    function saveAsMarkdown() {
+      var fileInput = document.getElementById('fileinput');
+      var filename = fileInput.value;
+      filename = filename.replace('C:\\fakepath\\', '');
+      if (filename == null) {
+        filename = "untitled.md";
+      }
+      save(editor.getValue(), filename);
     }
 
     function saveAsHtml() {
@@ -374,7 +398,7 @@ the inspiration to this, and some handy implementation hints, came.
       saveAsHtml();
       hideMenu();
     });
-
+                                                                        
     function save(code, name){
       var blob = new Blob([code], { type: 'text/plain' });
       if(window.saveAs){
@@ -412,9 +436,7 @@ the inspiration to this, and some handy implementation hints, came.
     });
 
 
-
-
-    document.addEventListener('keydown', function(e){
+    document.getElementById('in').addEventListener('keydown', function(e){
       if(e.keyCode == 83 && (e.ctrlKey || e.metaKey)){
         e.shiftKey ? showMenu() : saveAsMarkdown();
 
